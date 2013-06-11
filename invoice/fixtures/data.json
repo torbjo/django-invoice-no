@@ -1,0 +1,1 @@
+[{"pk": 1, "model": "invoice.client", "fields": {"comment": "", "email": "", "contact": "Ola Nordman", "name": "Norge AS", "address": "Drammensveien 1\r\n0123 Oslo"}}]
