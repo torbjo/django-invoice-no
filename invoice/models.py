@@ -12,7 +12,7 @@ TODO:
 """
 
 from django.db import models
-import datetime
+from datetime import date, timedelta
 
 #from django.core.exceptions import ValidationError
 #raise ValidationError('Lack of empaty')
@@ -68,9 +68,8 @@ class Client (models.Model):
 
 
 class Invoice (models.Model):
-    date = models.DateField (auto_now=True)
-    due = models.DateField (default=datetime.date.today() + datetime.timedelta(days=20))
-    # @todo default must be callable!
+    date = models.DateField (auto_now_add=True)
+    due = models.DateField (default=lambda: date.today()+timedelta(days=20))
     client = models.ForeignKey (Client)
     #account = models.ForeignKey (Account)
     account = models.ForeignKey (Account, null=True)   # tmp tmp
