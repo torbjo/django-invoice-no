@@ -24,8 +24,14 @@ class InvoiceInline (admin.TabularInline):
     extra = 4
 
 class InvoiceAdmin (admin.ModelAdmin):
+    # @todo only for change, not add. override get_readonly_fields()
+    #readonly_fields = 'date', 'due', 'client', 'text'
+    #fields = 'date', 'due', 'client', 'text'
     date_hierarchy = 'date'
     actions_selection_counter = True
+    # @todo text&comment => extra fieldset
+    #list_filter
+    #raw_id_fields = 'lines',
 
     inlines = [InvoiceInline]
 
@@ -38,7 +44,7 @@ class InvoiceAdmin (admin.ModelAdmin):
             self.message_user (request, 'Sorry, no support for multi-page PDF (yet)!', 'ERROR')
             return
         if not queryset[0].account:
-            self.message_user (request, 'ERROR: Invoice is missing account/payer!', 'ERROR')
+            self.message_user (request, 'ERROR: Invoice is missing account/payer! You can fix it.', 'ERROR')
             return
         response = HttpResponse (content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="invoice-%d.pdf"' % queryset[0].pk
@@ -46,12 +52,6 @@ class InvoiceAdmin (admin.ModelAdmin):
         return response
         #self.message_user (request, 'PDF ready for download')
     make_pdf.short_description = 'Create PDF of selected invoice(s)'
-
-    # @todo text&comment => extra fieldset
-    #readonly_fields = 'date',
-    #list_filter
-    #actions
-    #raw_id_fields = 'lines',
 
 
 

@@ -1,6 +1,6 @@
 # encoding: utf8
 """
-Register invoices and render to PDF.
+Models to create invoices.
 
 TODO:
 * AddressField, PhoneField?
@@ -8,6 +8,9 @@ TODO:
 * unique on org_no
 * webpage for client (1:n?)
 * list of contact persons
+* show invoice_no. use in list-view instead of date?
+* s/account/biller ?
+* s/client/payer ?
 
 """
 
@@ -19,6 +22,7 @@ from datetime import date, timedelta
 
 
 class Account (models.Model):
+    '''Biller'''
     name = models.CharField (max_length=100)
     address = models.TextField()
     org_no = models.CharField (max_length=32, blank=True)
@@ -44,7 +48,9 @@ class Account (models.Model):
     '''
 
 
+
 class Client (models.Model):
+    ''' Payer '''
     display_name = models.CharField (max_length=32, blank=True, help_text='Our name')
     name = models.CharField (max_length=100, help_text='Company name')
     # @todo howto display help text after (not bellow) field? css?
@@ -71,23 +77,23 @@ class Invoice (models.Model):
     date = models.DateField (auto_now_add=True)
     due = models.DateField (default=lambda: date.today()+timedelta(days=20))
     client = models.ForeignKey (Client)
-    #account = models.ForeignKey (Account)
-    account = models.ForeignKey (Account, null=True)   # tmp tmp
+    #account = models.ForeignKey (Account, default=1)
+    account = models.ForeignKey (Account, default=1, null=True)   # tmp tmp
     contact = models.CharField ('contact person', max_length=64, blank=True)
     #contact = models.CharField (max_length=64, blank=True, verbose_name='Deres ref.:')
     #our_contact = models.CharField (max_length=64, blank=True, verbose_name='Vår ref.:')
     text = models.TextField (blank=True, help_text='Extra text to put on the invoice')
     comment = models.TextField (blank=True, help_text='Internal comments')
     #invoice_no = models.IntegerField() # @todo auto-sequence
-    # @todo auto-generate invoice_no. no db field.
 
     def __unicode__ (self):
         return self.date.isoformat() + ': ' + unicode(self.client) + \
                ' : ' + self.invoiceline_set.first().text    # slow
         #return self.client.name + ' : ' + self.date.isoformat()
 
+    # @todo make into read-only property?
     def invoice_no (self):
-        return '1234'
+        return str(self.date).replace('-','') + str(self.pk)
 
 #    def _get_full_name (self):
 #        "Returns the persons full name"

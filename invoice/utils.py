@@ -20,7 +20,10 @@ def render_pdf (data, fp):
     # @todo fix nuking of \r on the django model
     biller = data.account.__dict__
     biller['address'] = biller['address'].replace('\r', '')
-    #biller['logo'] = 'logo.png'    # fixme
+    import os
+    logofile = os.path.join (os.getcwd(), '..', 'logo.png')
+    if os.path.exists (logofile):
+        biller['logo'] = logofile
 
     payer = data.client.__dict__
     payer['address'] = payer['address'].replace('\r', '')
@@ -37,5 +40,9 @@ def render_pdf (data, fp):
     invoice['invoice_no'] = data.invoice_no()
     invoice['payer'] = payer
     invoice['lines'] = lines
+    invoice['giro'] = dict (
+        account = data.account.account_no,
+        add_static_background = True,
+    )
 
     render_invoice (fp, biller, invoice)
