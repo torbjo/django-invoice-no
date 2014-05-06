@@ -1,0 +1,3 @@
+[submodule "invoice/f60-giro.git"]
+	path = invoice/f60-giro.git
+	url = git@github.com:torbjo/f60-giro.git
