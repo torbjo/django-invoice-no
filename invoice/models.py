@@ -53,17 +53,13 @@ class Client (models.Model):
     ''' Payer '''
     display_name = models.CharField (max_length=32, blank=True, help_text='Our name')
     name = models.CharField (max_length=100, help_text='Company name')
-    # @todo howto display help text after (not bellow) field? css?
-    #display_name = models.CharField (max_length=32, blank=True, help_text='Our name')
-    #name = models.CharField (max_length=100, help_text='Company name')
     address = models.TextField()
     org_no = models.CharField (max_length=32, blank=True)
     phone = models.CharField (max_length=32, blank=True)
     email = models.EmailField (blank=True)
-    #contact = models.CharField (max_length=64, blank=True, verbose_name='Contact person')
-    # @todo owner?
     contact = models.CharField ('contact person', max_length=64, blank=True)
     comment = models.TextField (blank=True)
+    # @todo owner?
 
     class Meta:
         ordering = 'name',
@@ -77,21 +73,19 @@ class Invoice (models.Model):
     date = models.DateField (auto_now_add=True)
     due = models.DateField (default=lambda: date.today()+timedelta(days=20))
     client = models.ForeignKey (Client)
-    #account = models.ForeignKey (Account, default=1)
-    account = models.ForeignKey (Account, default=1, null=True)   # tmp tmp
+    account = models.ForeignKey (Account, default=1)
     contact = models.CharField ('contact person', max_length=64, blank=True)
     #contact = models.CharField (max_length=64, blank=True, verbose_name='Deres ref.:')
     #our_contact = models.CharField (max_length=64, blank=True, verbose_name='Vår ref.:')
     text = models.TextField (blank=True, help_text='Extra text to put on the invoice')
     comment = models.TextField (blank=True, help_text='Internal comments')
-    #invoice_no = models.IntegerField() # @todo auto-sequence
 
     def __unicode__ (self):
-        return self.date.isoformat() + ': ' + unicode(self.client) + \
-               ' : ' + self.invoiceline_set.first().text    # slow
-        #return self.client.name + ' : ' + self.date.isoformat()
+        return unicode(self.client) + ': ' + self.date.isoformat()
+#        return self.date.isoformat() + ': ' + unicode(self.client) + \
+#               ' : ' + self.invoiceline_set.first().text    # slow
 
-    # @todo make into read-only property?
+    # @todo make into read-only property? drop 'no' suffix?
     def invoice_no (self):
         return str(self.date).replace('-','') + str(self.pk)
 
@@ -103,6 +97,8 @@ class Invoice (models.Model):
 
 
 class InvoiceLine (models.Model):
+    # @todo amount as integer
+    # @todo title-case text on save?
     invoice = models.ForeignKey (Invoice)
     text = models.CharField (max_length=100)
     #quantity = models.TextField (max_length=32)
@@ -110,5 +106,6 @@ class InvoiceLine (models.Model):
     #unit = models.CharField (max_length=16)
     amount = models.DecimalField (max_digits=12, decimal_places=2)
     # @todo amount -> unit_price?
+
     def __unicode__ (self):
         return self.text
