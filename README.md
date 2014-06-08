@@ -10,5 +10,7 @@ PDF rendering (using ReportLabs). Do this to install it:
     $ git clone github.com:torbjo/f60-giro.git f60-giro.git
     $ ln -s f60-giro.git/f60 f60giro
 
+UPDATE: f60-giro.git is now a git submodule, so no need to do the
+steps above.
 
 This is work in progress, but usable ...
