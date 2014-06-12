@@ -23,13 +23,11 @@ def render_pdf (data, fp):
     if os.path.exists (logofile):
         biller['logo'] = logofile
 
-    # Note amount is Decimal while quantity is float. So have type
-    # missmatch. Workaround is to cast to float.
-    # Correct way: Fraction(o.amount) * Fraction(o.quantity)
-    # or change o.quantity to Decimal datatype in Django
     lines = []
     for l in data.invoiceline_set.all():
         lines.append ((l.text, l.quantity, l.amount))
+    # @todo support passing invoice-lines as dict
+    #invoice['lines'] = map (object.__dict__, data.invoiceline_set.all())
 
     invoice = data.__dict__
     invoice['invoice_no'] = data.invoice_no()
