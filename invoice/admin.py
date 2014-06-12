@@ -21,15 +21,33 @@ class ClientAdmin (admin.ModelAdmin):
 ## Invoice
 class InvoiceInline (admin.TabularInline):
     model = InvoiceLine
-    extra = 4
+    extra = 2
+    can_delete = False
+    def has_add_permission (self, request):
+        return request.path.endswith ('/add/')  # hack; can't check obj
+    def get_extra (self, request, obj=None):
+        return 0 if obj else self.extra
+    def get_readonly_fields (self, request, obj=None):
+        if not obj: return ()
+        return ('text', 'quantity', 'amount',)
+
 
 class InvoiceAdmin (admin.ModelAdmin):
+    def get_fields (self, request, obj=None):
+        if not obj:     # new
+            return ('client', 'due', 'contact', 'text', 'comment')
+        return ('client', 'invoice_no', 'due', 'contact', 'text', 'comment')
+        # @todo only inject invoice_no if not new
+    def get_readonly_fields (self, request, obj=None):
+        if not obj: return ()
+        return ('invoice_no', 'due', 'client', 'contact', 'text', 'account')
+#    fields = ('client', 'invoice_no', 'due', 'contact', 'text', 'comment')
+#    readonly_fields = ('invoice_no', 'due', 'client', 'contact', 'text', 'account')
     # @todo only for change, not add. override get_readonly_fields()
     #readonly_fields = 'date', 'due', 'client', 'text'
-    #fields = 'date', 'due', 'client', 'text'
     date_hierarchy = 'date'
     actions_selection_counter = True
-    # @todo text&comment => extra fieldset
+    # @todo text&comment => extra fieldset?
     #list_filter
     #raw_id_fields = 'lines',
 

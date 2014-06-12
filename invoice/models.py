@@ -40,13 +40,6 @@ class Account (models.Model):
     def clean (self):
         self.address = self.address.replace ('\r', '')
 
-    '''
-    def save (self, *args, **kwargs):
-        #print dir(self)
-        self.address = self.address.replace ('\r', '')
-        super (Account,self).save (*args, **kwargs)
-    '''
-
 
 
 class Client (models.Model):
@@ -74,37 +67,34 @@ class Invoice (models.Model):
     due = models.DateField (default=lambda: date.today()+timedelta(days=20))
     client = models.ForeignKey (Client)
     account = models.ForeignKey (Account, default=1)
-    contact = models.CharField ('contact person', max_length=64, blank=True)
-    #contact = models.CharField (max_length=64, blank=True, verbose_name='Deres ref.:')
+    contact = models.CharField (max_length=64, blank=True, help_text='Uses the contact stored on the client if not given')
+    #contact = models.CharField (max_length=64, blank=True, help_text='Default is to use client contact')
+    # @todo our_contact
     #our_contact = models.CharField (max_length=64, blank=True, verbose_name='Vår ref.:')
-    text = models.TextField (blank=True, help_text='Extra text to put on the invoice')
-    comment = models.TextField (blank=True, help_text='Internal comments')
+    text = models.TextField ('invoice text', blank=True)
+    comment = models.TextField (blank=True, help_text='internal comments')
 
     def __unicode__ (self):
         return unicode(self.client) + ': ' + self.date.isoformat()
-#        return self.date.isoformat() + ': ' + unicode(self.client) + \
 #               ' : ' + self.invoiceline_set.first().text    # slow
 
-    # @todo make into read-only property? drop 'no' suffix?
     def invoice_no (self):
         return str(self.date).replace('-','') + str(self.pk)
-
-#    def _get_full_name (self):
-#        "Returns the persons full name"
-#        return '%s %s' % (self.first_name, self.last_name)
-#    full_name = property (_get_full_name)
+    # @todo property. use decorator instead?
+#    def _invoice_no (self):
+#        return str(self.date).replace('-','') + str(self.pk)
+#    invoice_no = property (_invoice_no)
 
 
 
 class InvoiceLine (models.Model):
-    # @todo amount as integer
-    # @todo title-case text on save?
     invoice = models.ForeignKey (Invoice)
     text = models.CharField (max_length=100)
-    #quantity = models.TextField (max_length=32)
-    quantity = models.FloatField (default=1)  # @todo DecimalField or RationalField
-    #unit = models.CharField (max_length=16)
+    #quantity = models.PositiveIntegerField (default=1)
+    quantity = models.FloatField (default=1)
+#    amount = models.PositiveIntegerField()
     amount = models.DecimalField (max_digits=12, decimal_places=2)
+    #unit = models.CharField (max_length=16)
     # @todo amount -> unit_price?
 
     def __unicode__ (self):
