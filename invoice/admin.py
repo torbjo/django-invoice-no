@@ -43,8 +43,6 @@ class InvoiceAdmin (admin.ModelAdmin):
         return ('invoice_no', 'due', 'client', 'contact', 'text', 'account')
 #    fields = ('client', 'invoice_no', 'due', 'contact', 'text', 'comment')
 #    readonly_fields = ('invoice_no', 'due', 'client', 'contact', 'text', 'account')
-    # @todo only for change, not add. override get_readonly_fields()
-    #readonly_fields = 'date', 'due', 'client', 'text'
     date_hierarchy = 'date'
     actions_selection_counter = True
     # @todo text&comment => extra fieldset?

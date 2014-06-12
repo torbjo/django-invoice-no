@@ -1,8 +1,9 @@
+import os
 from f60giro.invoice import render as render_invoice
 from models import Invoice
 
 
-# not in use
+# not in use. @todo move to f60giro
 def make_pdf (invoice_id):
     '''Returns file-like object (StringIO) containing pdf data'''
     from cStringIO import StringIO
@@ -17,16 +18,10 @@ def make_pdf (invoice_id):
 def render_pdf (data, fp):
     '''Renders PDF of invoice into a file like object (fp) '''
 
-    # @todo fix nuking of \r on the django model
     biller = data.account.__dict__
-    biller['address'] = biller['address'].replace('\r', '')
-    import os
     logofile = os.path.join (os.getcwd(), '..', 'logo.png')
     if os.path.exists (logofile):
         biller['logo'] = logofile
-
-    payer = data.client.__dict__
-    payer['address'] = payer['address'].replace('\r', '')
 
     # Note amount is Decimal while quantity is float. So have type
     # missmatch. Workaround is to cast to float.
@@ -34,11 +29,11 @@ def render_pdf (data, fp):
     # or change o.quantity to Decimal datatype in Django
     lines = []
     for l in data.invoiceline_set.all():
-        lines.append ((l.text, l.quantity, float(l.amount)))
+        lines.append ((l.text, l.quantity, l.amount))
 
     invoice = data.__dict__
     invoice['invoice_no'] = data.invoice_no()
-    invoice['payer'] = payer
+    invoice['payer'] = data.client.__dict__
     invoice['lines'] = lines
     invoice['giro'] = dict (
         account = data.account.account_no,
